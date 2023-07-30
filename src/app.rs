@@ -10,6 +10,8 @@ pub struct App {
     pub running: bool,
     /// counter
     pub counter: u8,
+    /// Bottom text
+    pub bottom_text: String,
 }
 
 impl Default for App {
@@ -17,6 +19,7 @@ impl Default for App {
         Self {
             running: true,
             counter: 0,
+            bottom_text: "".to_string(),
         }
     }
 }
@@ -45,5 +48,9 @@ impl App {
         if let Some(res) = self.counter.checked_sub(1) {
             self.counter = res;
         }
+    }
+
+    pub fn set_bottom_text(&mut self, new_text: String) {
+        self.bottom_text = new_text;
     }
 }

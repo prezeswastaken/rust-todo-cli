@@ -22,6 +22,11 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
             app.decrement_counter();
         }
         // Other handlers you could add here.
+        KeyCode::Delete => {
+            app.set_bottom_text("DELETE has been pressed".to_string());
+        }
+
+        // Other handlers you could add here.
         _ => {}
     }
     Ok(())
