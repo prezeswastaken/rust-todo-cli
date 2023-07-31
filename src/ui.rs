@@ -39,17 +39,7 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
         frame.size(),
     );
 
-    let entry_list: [(i32, String, bool); 8] = [
-        (0, String::from("Task 0"), false),
-        (1, String::from("Task 1"), false),
-        (2, String::from("Task 2"), true),
-        (3, String::from("Task 3"), false),
-        (4, String::from("Task 4"), true),
-        (5, String::from("Task 5"), true),
-        (6, String::from("Task 6"), false),
-        (7, String::from("Task 7"), true),
-    ];
-
+    let entry_list = &app.tasks;
     let entries_chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints(
@@ -69,10 +59,9 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
         )
         .split(frame.size());
 
-    for (id, text, completed) in &entry_list {
-
+    for (i, task) in entry_list.iter().enumerate() {
         let completion_status: String;
-        if *completed {
+        if task.completed {
             completion_status = "󰄬".to_string();
         }
 
@@ -81,13 +70,13 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
         }
 
         let color: Color;  
-        if id == &app.current_position {
+        if i == app.current_position as usize{
             color = Color::Green;
         } else {
             color = Color::Black;
         }
 
-        let entry = Paragraph::new(format!("{} {} {}", id+1, completion_status, text))
+        let entry = Paragraph::new(format!("{} {} {}", task.id, completion_status, task.text))
             .style(Style::default().fg(Color::White).bg(color))
             .alignment(Alignment::Left)
             .block(
@@ -96,6 +85,20 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
                     .style(Style::default().fg(Color::White))
                     .border_type(BorderType::Plain),
             );
-        frame.render_widget(entry, entries_chunks[(id + 1) as usize]);
+        frame.render_widget(entry, entries_chunks[(i+1) as usize]);
     }
+
+    frame.render_widget(
+        Paragraph::new("")
+            .block(
+                Block::default()
+                    .title(format!("{}", app.current_position))
+                    .title_alignment(Alignment::Center)
+                    .borders(Borders::ALL)
+                    .border_type(BorderType::Rounded),
+            )
+            .style(Style::default().fg(Color::White).bg(Color::Black))
+            .alignment(Alignment::Center),
+            entries_chunks[9]
+    );
 }
