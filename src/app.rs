@@ -6,6 +6,7 @@ use crate::schema::tasks;
 use crate::schema::tasks::completed;
 use diesel::connection::DefaultLoadingMode;
 use diesel::prelude::*;
+use crate::models::NewTask;
 
 //I was here
 use std::error;
@@ -16,12 +17,11 @@ pub type AppResult<T> = std::result::Result<T, Box<dyn error::Error>>;
 /// Application.
 //#[derive(Debug)]
 pub struct App {
-    /// Is the application running?
-    pub running: bool,
-    /// counter
-    pub current_position: i32,
 
-    //pub connection: &'a SqliteConnection,
+    pub running: bool,
+
+    pub current_position: i32,
+    pub tasks: Vec<Task>,
 }
 
 impl Default for App {
@@ -29,14 +29,23 @@ impl Default for App {
         Self {
             running: true,
             current_position: 0,
+            tasks: Vec::new(),
         }
     }
 }
 
 impl App {
-    pub fn fetch_data(&self) {
+    pub fn fetch_data(&mut self) {
         let connection = &mut establish_connection();
-        //let tasks = tasks::table.load(connection);
+        let tasks: Vec<Task> = tasks::table
+            .load(connection)
+            .expect("coulnd load data from database");
+
+        self.tasks = tasks;
+    }
+    
+    pub fn create_fake_tasks (&mut self) {
+        let new_task = NewTask {text: "chuj"};
     }
     /// Constructs a new instance of [`App`].
     pub fn new() -> Self {

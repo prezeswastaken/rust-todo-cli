@@ -21,6 +21,9 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
         KeyCode::Char('j') => {
             app.move_down();
         }
+        KeyCode::Delete => {
+            app.fetch_data();
+        }
 
         // Other handlers you could add here.
         _ => {}
