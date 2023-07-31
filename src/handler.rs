@@ -22,6 +22,9 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
             app.move_down();
         }
         KeyCode::Delete => {
+            app.create_fake_tasks("last_one".to_string());
+        }
+        KeyCode::Enter => {
             app.fetch_data();
         }
 

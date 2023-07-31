@@ -1,4 +1,5 @@
 use crate::database_fetcher::establish_connection;
+use crate::models::NewTask;
 use crate::models::Task;
 use crate::models::*;
 use crate::schema;
@@ -6,7 +7,6 @@ use crate::schema::tasks;
 use crate::schema::tasks::completed;
 use diesel::connection::DefaultLoadingMode;
 use diesel::prelude::*;
-use crate::models::NewTask;
 
 //I was here
 use std::error;
@@ -17,7 +17,6 @@ pub type AppResult<T> = std::result::Result<T, Box<dyn error::Error>>;
 /// Application.
 //#[derive(Debug)]
 pub struct App {
-
     pub running: bool,
 
     pub current_position: i32,
@@ -43,9 +42,15 @@ impl App {
 
         self.tasks = tasks;
     }
-    
-    pub fn create_fake_tasks (&mut self) {
-        let new_task = NewTask {text: "chuj"};
+
+    pub fn create_fake_tasks(&mut self, text: String) {
+        let connection = &mut establish_connection();
+
+        let new_task = NewTask { text: &format!("{}", text)};
+        diesel::insert_into(tasks::table)
+            .values(&new_task)
+            .execute(connection)
+            .expect("Error saving new post");
     }
     /// Constructs a new instance of [`App`].
     pub fn new() -> Self {
