@@ -14,6 +14,7 @@ fn main() -> AppResult<()> {
 
     // Create an application.
     let mut app = App::new();
+    app.fetch_data();
 
     // Initialize the terminal user interface.
     let backend = CrosstermBackend::new(io::stderr());

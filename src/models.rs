@@ -13,6 +13,8 @@ pub struct Task {
 
 #[derive(Insertable)]
 #[diesel(table_name = tasks)]
+#[diesel(check_for_backend(diesel::sqlite::Sqlite))]                                          // 
 pub struct NewTask<'a> {
     pub text: &'a str,
 }
+
