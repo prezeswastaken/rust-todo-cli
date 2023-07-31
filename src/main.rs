@@ -1,12 +1,17 @@
 use ratatui::app::{App, AppResult};
 use ratatui::event::{Event, EventHandler};
 use ratatui::handler::handle_key_events;
+use ratatui::{models, database_fetcher, schema};
 use ratatui::tui::Tui;
 use std::io;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
 
+
+
 fn main() -> AppResult<()> {
+
+
     // Create an application.
     let mut app = App::new();
 

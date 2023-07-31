@@ -16,14 +16,10 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
         }
         // Counter handlers
         KeyCode::Char('k') => {
-            app.increment_counter();
+            app.move_up();
         }
         KeyCode::Char('j') => {
-            app.decrement_counter();
-        }
-        // Other handlers you could add here.
-        KeyCode::Delete => {
-            app.set_bottom_text("DELETE has been pressed".to_string());
+            app.move_down();
         }
 
         // Other handlers you could add here.

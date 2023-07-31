@@ -1,3 +1,12 @@
+
+
+
+
+//use diesel_demo_step_1_sqlite::*;
+
+
+
+
 use tui::{
     backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout},
@@ -15,15 +24,6 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
     // - https://docs.rs/ratatui/latest/ratatui/widgets/index.html
     // - https://github.com/ratatui-org/ratatui/tree/master/examples
     // "Welcome to amazing TODO app by prezes!"
-    let copyright = Paragraph::new(format!("{}", app.bottom_text))
-        .style(Style::default().fg(Color::White))
-        .alignment(Alignment::Center)
-        .block(
-            Block::default()
-                .borders(Borders::TOP)
-                .style(Style::default().fg(Color::White))
-                .border_type(BorderType::Plain),
-        );
 
     frame.render_widget(
         Paragraph::new("")
@@ -40,6 +40,7 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
     );
 
     let entry_list: [(i32, String, bool); 8] = [
+        (0, String::from("Task 0"), false),
         (1, String::from("Task 1"), false),
         (2, String::from("Task 2"), true),
         (3, String::from("Task 3"), false),
@@ -47,12 +48,10 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
         (5, String::from("Task 5"), true),
         (6, String::from("Task 6"), false),
         (7, String::from("Task 7"), true),
-        (8, String::from("Task 8"), false),
     ];
 
     let entries_chunks = Layout::default()
         .direction(Direction::Vertical)
-        .margin(2)
         .constraints(
             [
                 Constraint::Percentage(10),
@@ -71,8 +70,25 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
         .split(frame.size());
 
     for (id, text, completed) in &entry_list {
-        let entry = Paragraph::new(format!("{}", text))
-            .style(Style::default().fg(Color::White).bg(Color::Green))
+
+        let completion_status: String;
+        if *completed {
+            completion_status = "󰄬".to_string();
+        }
+
+        else {
+            completion_status = "".to_string();
+        }
+
+        let color: Color;  
+        if id == &app.current_position {
+            color = Color::Green;
+        } else {
+            color = Color::Black;
+        }
+
+        let entry = Paragraph::new(format!("{} {} {}", id+1, completion_status, text))
+            .style(Style::default().fg(Color::White).bg(color))
             .alignment(Alignment::Left)
             .block(
                 Block::default()
@@ -80,6 +96,6 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
                     .style(Style::default().fg(Color::White))
                     .border_type(BorderType::Plain),
             );
-        frame.render_widget(entry, entries_chunks[*id as usize]);
+        frame.render_widget(entry, entries_chunks[(id + 1) as usize]);
     }
 }
