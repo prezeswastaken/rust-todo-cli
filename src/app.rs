@@ -1,3 +1,13 @@
+use crate::database_fetcher::establish_connection;
+use crate::models::NewTask;
+use crate::models::Task;
+use crate::models::*;
+use crate::schema;
+use crate::schema::tasks;
+use crate::schema::tasks::completed;
+use diesel::connection::DefaultLoadingMode;
+use diesel::prelude::*;
+
 //I was here
 use std::error;
 
@@ -5,27 +15,43 @@ use std::error;
 pub type AppResult<T> = std::result::Result<T, Box<dyn error::Error>>;
 
 /// Application.
-#[derive(Debug)]
+//#[derive(Debug)]
 pub struct App {
-    /// Is the application running?
     pub running: bool,
-    /// counter
-    pub counter: u8,
-    /// Bottom text
-    pub bottom_text: String,
+
+    pub current_position: i32,
+    pub tasks: Vec<Task>,
 }
 
 impl Default for App {
     fn default() -> Self {
         Self {
             running: true,
-            counter: 0,
-            bottom_text: "".to_string(),
+            current_position: 0,
+            tasks: Vec::new(),
         }
     }
 }
 
 impl App {
+    pub fn fetch_data(&mut self) {
+        let connection = &mut establish_connection();
+        let tasks: Vec<Task> = tasks::table
+            .load(connection)
+            .expect("coulnd load data from database");
+
+        self.tasks = tasks;
+    }
+
+    pub fn create_fake_tasks(&mut self, text: String) {
+        let connection = &mut establish_connection();
+
+        let new_task = NewTask { text: &format!("{}", text)};
+        diesel::insert_into(tasks::table)
+            .values(&new_task)
+            .execute(connection)
+            .expect("Error saving new post");
+    }
     /// Constructs a new instance of [`App`].
     pub fn new() -> Self {
         Self::default()
@@ -39,19 +65,19 @@ impl App {
         self.running = false;
     }
 
-    pub fn increment_counter(&mut self) {
-        if let Some(res) = self.counter.checked_add(1) {
-            self.counter = res;
+    pub fn move_up(&mut self) {
+        if self.current_position > 0 {
+            self.current_position -= 1;
+        } else {
+            self.current_position = 7;
         }
     }
 
-    pub fn decrement_counter(&mut self) {
-        if let Some(res) = self.counter.checked_sub(1) {
-            self.counter = res;
+    pub fn move_down(&mut self) {
+        if self.current_position < 7 {
+            self.current_position += 1;
+        } else {
+            self.current_position = 0;
         }
-    }
-
-    pub fn set_bottom_text(&mut self, new_text: String) {
-        self.bottom_text = new_text;
     }
 }
