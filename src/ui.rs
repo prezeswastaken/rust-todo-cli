@@ -1,12 +1,12 @@
 use tui::{
     backend::Backend,
-    layout::{Alignment, Constraint, Direction, Layout},
+    layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Style},
     widgets::{Block, BorderType, Borders, Paragraph},
     Frame,
 };
 
-use crate::app::App;
+use crate::app::{App, AppState};
 
 /// Renders the user interface widgets.
 pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
@@ -50,18 +50,17 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
         )
         .split(frame.size());
 
+    if app.app_state == AppState::Main {
     for (i, task) in entry_list.iter().enumerate() {
         let completion_status: String;
         if task.completed {
             completion_status = "󰄬".to_string();
-        }
-
-        else {
+        } else {
             completion_status = "".to_string();
         }
 
-        let color: Color;  
-        if i == app.current_position as usize{
+        let color: Color;
+        if i == app.current_position as usize {
             color = Color::Green;
         } else {
             color = Color::Black;
@@ -76,7 +75,8 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
                     .style(Style::default().fg(Color::White))
                     .border_type(BorderType::Plain),
             );
-        frame.render_widget(entry, entries_chunks[(i+1) as usize]);
+        frame.render_widget(entry, entries_chunks[(i + 1) as usize]);
+    }
     }
 
     frame.render_widget(
@@ -90,6 +90,47 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
             )
             .style(Style::default().fg(Color::White).bg(Color::Black))
             .alignment(Alignment::Center),
-            entries_chunks[9]
+        entries_chunks[9],
     );
+
+    let insert_name_popup: Paragraph = Paragraph::new("")
+        .block(
+            Block::default()
+                .title("Enter a name for your task")
+                .title_alignment(Alignment::Center)
+                .borders(Borders::ALL)
+                .border_type(BorderType::Rounded),
+        )
+        .style(Style::default().fg(Color::White).bg(Color::Black))
+        .alignment(Alignment::Center);
+
+    if app.app_state == AppState::Typing {
+        frame.render_widget(insert_name_popup, centered_rect(50, 20, frame.size()));
+    }
+
+    fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
+        let popup_layout = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Percentage((100 - percent_y) / 2),
+                    Constraint::Percentage(percent_y),
+                    Constraint::Percentage((100 - percent_y) / 2),
+                ]
+                .as_ref(),
+            )
+            .split(r);
+
+        Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage((100 - percent_x) / 2),
+                    Constraint::Percentage(percent_x),
+                    Constraint::Percentage((100 - percent_x) / 2),
+                ]
+                .as_ref(),
+            )
+            .split(popup_layout[1])[1]
+    }
 }
