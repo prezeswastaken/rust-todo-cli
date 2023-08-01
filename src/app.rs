@@ -20,6 +20,8 @@ pub struct App {
 
     pub current_position: i32,
     pub tasks: Vec<Task>,
+
+    pub connection: Option<SqliteConnection>,
 }
 
 impl Default for App {
@@ -28,18 +30,33 @@ impl Default for App {
             running: true,
             current_position: 0,
             tasks: Vec::new(),
+            connection: None,
         }
     }
 }
 
 impl App {
-    pub fn fetch_data(&mut self) {
-        let connection = &mut establish_connection();
+    pub fn establish_connection_app(&mut self) -> i32 {
+        let connection = establish_connection();
+
+        match &mut self.connection {
+            Some(_) => return 0,
+            None => self.connection = Some(connection),
+        }
+
+        return 0;
+    }
+    pub fn fetch_data(&mut self) -> i32 {
+        if self.connection.is_none() {
+            return 1;
+        }
+        let connection = self.connection.as_mut().unwrap();
         let tasks: Vec<Task> = tasks::table
             .load(connection)
             .expect("coulnd load data from database");
 
         self.tasks = tasks;
+        return 0;
     }
 
     pub fn create_task(&mut self, text: String) -> i32 {
@@ -49,7 +66,7 @@ impl App {
             return 0;
         }
 
-        let connection = &mut establish_connection();
+        let connection = self.connection.as_mut().unwrap();
 
         let new_task = NewTask {
             text: &format!("{}", text),
@@ -62,12 +79,60 @@ impl App {
         1
     }
 
-    pub fn delete_task(&mut self, id_to_delete: i32) {
-        let connection = &mut establish_connection();
+    pub fn get_current_task_id(&mut self) -> i32 {
+        let current_task: Option<&Task> = self.tasks.get(self.current_position as usize);
+        if current_task.is_none() {
+            return 0;
+        }
+
+        let id = current_task.unwrap().id;
+
+        return id;
+    }
+
+    pub fn mark_current_task_as_completed(&mut self) -> i32 {
+        let id = self.get_current_task_id();
+
+        let current_task: Option<&Task> = self.tasks.get(self.current_position as usize);
+
+        if current_task.is_none() {
+            return 1;
+        }
+
+        if current_task.unwrap().completed == false {
+            let updated_row = diesel::update(tasks::table.filter(tasks::id.eq(id)))
+                .set(completed.eq(true))
+                .execute(self.connection.as_mut().unwrap());
+        } else {
+            let updated_row = diesel::update(tasks::table.filter(tasks::id.eq(id)))
+                .set(completed.eq(false))
+                .execute(self.connection.as_mut().unwrap());
+        }
+
+        self.fetch_data();
+        return 0;
+    }
+
+    pub fn delete_current_task(&mut self) -> i32 {
+        if self.tasks.len() == 1 {
+            return 0;
+        }
+        let id_to_delete = self.get_current_task_id();
+        let connection = self.connection.as_mut().unwrap();
         diesel::delete(tasks::table.filter(tasks::id.eq(id_to_delete)))
             .execute(connection)
             .expect("Error deleting task");
         self.fetch_data();
+
+        if self.current_position > (self.tasks.len() - 1) as i32 {
+            if self.tasks.len() == 0 {
+                self.current_position = 0;
+                return 0;
+            }
+
+            self.current_position = (self.tasks.len() - 1) as i32;
+        }
+        return 0;
     }
 
     /// Constructs a new instance of [`App`].
@@ -84,17 +149,17 @@ impl App {
     }
 
     pub fn move_up(&mut self) {
-        if self.current_position > 0 {
-            self.current_position -= 1;
+        if (self.current_position - 1) < 0 {
+            self.current_position = (self.tasks.len() - 1) as i32;
         } else {
-            self.current_position = 7;
+            self.current_position = self.current_position - 1;
         }
     }
     pub fn move_down(&mut self) {
-        if self.current_position < 7 {
-            self.current_position += 1;
-        } else {
+        if (self.current_position + 1) as usize >= self.tasks.len() {
             self.current_position = 0;
+        } else {
+            self.current_position += 1;
         }
     }
 }

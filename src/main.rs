@@ -14,6 +14,7 @@ fn main() -> AppResult<()> {
 
     // Create an application.
     let mut app = App::new();
+    app.establish_connection_app();
     app.fetch_data();
 
     // Initialize the terminal user interface.

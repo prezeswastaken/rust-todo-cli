@@ -22,10 +22,13 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
             app.move_down();
         }
         KeyCode::Delete => {
-            app.delete_task(10);
+            app.delete_current_task();
         }
         KeyCode::Enter => {
             app.create_task("HEHEHEUheuheuhue".to_string());
+        }
+        KeyCode::Tab => {
+            app.mark_current_task_as_completed();
         }
 
         // Other handlers you could add here.
