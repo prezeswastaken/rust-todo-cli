@@ -1,8 +1,8 @@
-use ratatui::app::{App, AppResult};
-use ratatui::event::{Event, EventHandler};
-use ratatui::handler::handle_key_events;
-use ratatui::{models, database_fetcher, schema};
-use ratatui::tui::Tui;
+use todo_cli::app::{App, AppResult};
+use todo_cli::event::{Event, EventHandler};
+use todo_cli::handler::handle_key_events;
+use todo_cli::{models, database_fetcher, schema};
+use todo_cli::tui::Tui;
 use std::io;
 use tui::backend::CrosstermBackend;
 use tui::Terminal;
@@ -14,6 +14,7 @@ fn main() -> AppResult<()> {
 
     // Create an application.
     let mut app = App::new();
+    app.establish_connection_app();
     app.fetch_data();
 
     // Initialize the terminal user interface.

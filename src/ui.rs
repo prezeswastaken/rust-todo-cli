@@ -1,12 +1,3 @@
-
-
-
-
-//use diesel_demo_step_1_sqlite::*;
-
-
-
-
 use tui::{
     backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout},
