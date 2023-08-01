@@ -191,16 +191,6 @@ dependencies = [
 
 [[package]]
 name = "ratatui"
-version = "0.1.0"
-dependencies = [
- "crossterm",
- "diesel",
- "dotenvy",
- "ratatui 0.21.0",
-]
-
-[[package]]
-name = "ratatui"
 version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ce841e0486e7c2412c3740168ede33adeba8e154a15107b879d8162d77c7174e"
@@ -305,6 +295,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "96ba15a897f3c86766b757e5ac7221554c6750054d74d5b28844fce5fb36a6c4"
 dependencies = [
  "time-core",
+]
+
+[[package]]
+name = "todo_cli"
+version = "0.1.0"
+dependencies = [
+ "crossterm",
+ "diesel",
+ "dotenvy",
+ "ratatui",
 ]
 
 [[package]]

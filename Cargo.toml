@@ -1,5 +1,5 @@
 [package]
-name = "ratatui"
+name = "todo_cli"
 version = "0.1.0"
 authors = ["prezeswastaken <kacper.preyzner@studenci.collegiumwitelona.pl>"]
 license = "MIT"
