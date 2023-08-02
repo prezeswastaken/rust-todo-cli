@@ -11,6 +11,12 @@ use diesel::prelude::*;
 //I was here
 use std::error;
 
+#[derive(PartialEq)]
+pub enum AppState {
+    Main,
+    Typing,
+}
+
 /// Application result type.
 pub type AppResult<T> = std::result::Result<T, Box<dyn error::Error>>;
 
@@ -22,6 +28,10 @@ pub struct App {
     pub tasks: Vec<Task>,
 
     pub connection: Option<SqliteConnection>,
+    
+    pub app_state: AppState,
+    pub buffer: String,
+    
 }
 
 impl Default for App {
@@ -31,6 +41,8 @@ impl Default for App {
             current_position: 0,
             tasks: Vec::new(),
             connection: None,
+            app_state: AppState::Main,
+            buffer: "".to_string(),
         }
     }
 }
@@ -161,5 +173,13 @@ impl App {
         } else {
             self.current_position += 1;
         }
+    }
+
+    pub fn start_typing (&mut self) {
+        self.app_state = AppState::Typing;
+    }
+
+    pub fn stop_typing (&mut self) {
+        self.app_state = AppState::Main;
     }
 }
