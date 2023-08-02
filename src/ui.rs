@@ -1,3 +1,4 @@
+use crate::app::{App, AppState};
 use tui::{
     backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
@@ -5,8 +6,6 @@ use tui::{
     widgets::{Block, BorderType, Borders, Paragraph},
     Frame,
 };
-
-use crate::app::{App, AppState};
 
 /// Renders the user interface widgets.
 pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
@@ -51,32 +50,32 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
         .split(frame.size());
 
     if app.app_state == AppState::Main {
-    for (i, task) in entry_list.iter().enumerate() {
-        let completion_status: String;
-        if task.completed {
-            completion_status = "󰄬".to_string();
-        } else {
-            completion_status = "".to_string();
-        }
+        for (i, task) in entry_list.iter().enumerate() {
+            let completion_status: String;
+            if task.completed {
+                completion_status = "󰄬".to_string();
+            } else {
+                completion_status = "".to_string();
+            }
 
-        let color: Color;
-        if i == app.current_position as usize {
-            color = Color::Green;
-        } else {
-            color = Color::Black;
-        }
+            let color: Color;
+            if i == app.current_position as usize {
+                color = Color::Green;
+            } else {
+                color = Color::Black;
+            }
 
-        let entry = Paragraph::new(format!("{} {} {}", task.id, completion_status, task.text))
-            .style(Style::default().fg(Color::White).bg(color))
-            .alignment(Alignment::Left)
-            .block(
-                Block::default()
-                    .borders(Borders::BOTTOM)
-                    .style(Style::default().fg(Color::White))
-                    .border_type(BorderType::Plain),
-            );
-        frame.render_widget(entry, entries_chunks[(i + 1) as usize]);
-    }
+            let entry = Paragraph::new(format!("{} {} {}", task.id, completion_status, task.text))
+                .style(Style::default().fg(Color::White).bg(color))
+                .alignment(Alignment::Left)
+                .block(
+                    Block::default()
+                        .borders(Borders::BOTTOM)
+                        .style(Style::default().fg(Color::White))
+                        .border_type(BorderType::Plain),
+                );
+            frame.render_widget(entry, entries_chunks[(i + 1) as usize]);
+        }
     }
 
     frame.render_widget(
@@ -93,7 +92,7 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
         entries_chunks[9],
     );
 
-    let insert_name_popup: Paragraph = Paragraph::new("")
+    let insert_name_popup: Paragraph = Paragraph::new(format!("{}", app.buffer))
         .block(
             Block::default()
                 .title("Enter a name for your task")

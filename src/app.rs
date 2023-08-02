@@ -30,6 +30,7 @@ pub struct App {
     pub connection: Option<SqliteConnection>,
     
     pub app_state: AppState,
+    pub buffer: String,
     
 }
 
@@ -41,6 +42,7 @@ impl Default for App {
             tasks: Vec::new(),
             connection: None,
             app_state: AppState::Main,
+            buffer: "".to_string(),
         }
     }
 }

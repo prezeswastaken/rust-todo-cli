@@ -47,8 +47,12 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
             KeyCode::Esc => {
                 app.stop_typing();
             }
+            KeyCode::Char(c) => {
+                println!("{}", c);
+            }
             _ => {}
         }
     }
+
     Ok(())
 }
