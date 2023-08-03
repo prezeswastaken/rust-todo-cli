@@ -65,7 +65,7 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
                 color = Color::Black;
             }
 
-            let entry = Paragraph::new(format!("{} {} {}", task.id, completion_status, task.text))
+            let entry = Paragraph::new(format!("{} {} {}", i+1, completion_status, task.text))
                 .style(Style::default().fg(Color::White).bg(color))
                 .alignment(Alignment::Left)
                 .block(
@@ -79,16 +79,17 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
     }
 
     frame.render_widget(
-        Paragraph::new("")
+        Paragraph::new("Controls: ENTER - create new task | o - rename selected task | j - down | k - up | TAB - switch status of selected task")
             .block(
                 Block::default()
-                    .title(format!("{}", app.current_position))
+                    .title(format!("{}", app.current_position+1))
                     .title_alignment(Alignment::Center)
                     .borders(Borders::ALL)
                     .border_type(BorderType::Rounded),
             )
             .style(Style::default().fg(Color::White).bg(Color::Black))
-            .alignment(Alignment::Center),
+            .alignment(Alignment::Left),
+            
         entries_chunks[9],
     );
 

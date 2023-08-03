@@ -26,7 +26,7 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
                 app.delete_current_task();
             }
             KeyCode::Enter => {
-                app.create_task("HEHEHEUheuheuhue".to_string());
+                app.create_task();
             }
             KeyCode::Tab => {
                 app.mark_current_task_as_completed();
@@ -47,8 +47,17 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
             KeyCode::Esc => {
                 app.stop_typing();
             }
+            KeyCode::Backspace => {
+                app.buffer.pop();
+            }
             KeyCode::Char(c) => {
-                println!("{}", c);
+                app.buffer.push(c);
+            }
+            KeyCode::Enter => {
+                let result = app.rename_current_task();
+                if let Ok(_) = result {
+                    app.stop_typing();
+                }
             }
             _ => {}
         }
