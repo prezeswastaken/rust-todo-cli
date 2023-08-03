@@ -93,7 +93,7 @@ pub fn render<B: Backend>(app: &mut App, frame: &mut Frame<'_, B>) {
         entries_chunks[9],
     );
 
-    let insert_name_popup: Paragraph = Paragraph::new(format!("{}", app.buffer))
+    let insert_name_popup: Paragraph = Paragraph::new(format!("\n{}", app.buffer))
         .block(
             Block::default()
                 .title("Enter a name for your task")

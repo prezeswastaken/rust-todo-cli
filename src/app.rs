@@ -76,7 +76,7 @@ impl App {
         const MAX_TASKS_COUNT: usize = 8;
         self.fetch_data();
         if self.tasks.len() >= MAX_TASKS_COUNT {
-            return 0;
+            return 1;
         }
 
         let connection = self.connection.as_mut().unwrap();
@@ -89,7 +89,8 @@ impl App {
             .execute(connection)
             .expect("Error saving new post");
         self.fetch_data();
-        1
+        self.current_position = (self.tasks.len()-1) as i32;
+        0
     }
 
     pub fn get_current_task_id(&mut self) -> i32 {
