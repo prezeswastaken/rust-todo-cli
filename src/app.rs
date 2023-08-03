@@ -1,11 +1,11 @@
 use crate::database_fetcher::establish_connection;
 use crate::models::NewTask;
 use crate::models::Task;
-use crate::models::*;
-use crate::schema;
 use crate::schema::tasks;
 use crate::schema::tasks::completed;
-use diesel::connection::DefaultLoadingMode;
+use crate::schema::tasks::text as task_name;
+use anyhow::anyhow;
+use anyhow::Result;
 use diesel::prelude::*;
 
 //I was here
@@ -16,6 +16,8 @@ pub enum AppState {
     Main,
     Typing,
 }
+
+pub const NEW_TASK_PROMPT: &str = "I am a brand new task. Press 'o' to rename me!";
 
 /// Application result type.
 pub type AppResult<T> = std::result::Result<T, Box<dyn error::Error>>;
@@ -28,10 +30,9 @@ pub struct App {
     pub tasks: Vec<Task>,
 
     pub connection: Option<SqliteConnection>,
-    
+
     pub app_state: AppState,
     pub buffer: String,
-    
 }
 
 impl Default for App {
@@ -71,7 +72,7 @@ impl App {
         return 0;
     }
 
-    pub fn create_task(&mut self, text: String) -> i32 {
+    pub fn create_task(&mut self) -> i32 {
         const MAX_TASKS_COUNT: usize = 8;
         self.fetch_data();
         if self.tasks.len() >= MAX_TASKS_COUNT {
@@ -81,7 +82,7 @@ impl App {
         let connection = self.connection.as_mut().unwrap();
 
         let new_task = NewTask {
-            text: &format!("{}", text),
+            text: NEW_TASK_PROMPT
         };
         diesel::insert_into(tasks::table)
             .values(&new_task)
@@ -112,7 +113,7 @@ impl App {
         }
 
         if current_task.unwrap().completed == false {
-            let updated_row = diesel::update(tasks::table.filter(tasks::id.eq(id)))
+            diesel::update(tasks::table.filter(tasks::id.eq(id)))
                 .set(completed.eq(true))
                 .execute(self.connection.as_mut().unwrap());
         } else {
@@ -160,6 +161,7 @@ impl App {
         self.running = false;
     }
 
+
     pub fn move_up(&mut self) {
         if (self.current_position - 1) < 0 {
             self.current_position = (self.tasks.len() - 1) as i32;
@@ -175,11 +177,39 @@ impl App {
         }
     }
 
-    pub fn start_typing (&mut self) {
+    pub fn start_typing(&mut self) {
         self.app_state = AppState::Typing;
+        let current_task: Option<&Task> = self.tasks.get(self.current_position as usize);
+        if let Some(ct) = current_task {
+            if ct.text == NEW_TASK_PROMPT {
+                self.buffer = "".to_owned();
+                return();
+            }
+            self.buffer = ct.text.to_owned();
+        }
+
     }
 
-    pub fn stop_typing (&mut self) {
+    pub fn stop_typing(&mut self) {
         self.app_state = AppState::Main;
+    }
+
+    pub fn rename_current_task(&mut self) -> Result<()> {
+        if self.buffer == "" {
+            return Err(anyhow!("Task name can't be empty!"));
+        }
+        let id = self.get_current_task_id();
+        let current_task: Option<&Task> = self.tasks.get(self.current_position as usize);
+
+        if let Some(_) = current_task {
+            diesel::update(tasks::table.filter(tasks::id.eq(id)))
+                .set(task_name.eq(self.buffer.to_owned()))
+                .execute(self.connection.as_mut().unwrap())?;
+        } else {
+            return Err(anyhow!("Can't find the task to rename"));
+        }
+        self.fetch_data();
+
+        Ok(())
     }
 }
