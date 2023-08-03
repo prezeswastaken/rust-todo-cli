@@ -25,7 +25,7 @@ pub fn handle_key_events(key_event: KeyEvent, app: &mut App) -> AppResult<()> {
             KeyCode::Delete | KeyCode::Char('D') => {
                 app.delete_current_task();
             }
-            KeyCode::Enter => {
+            KeyCode::Enter | KeyCode::Char('a') => {
                 app.create_task();
             }
             KeyCode::Tab => {
